@@ -1,0 +1,220 @@
+{
+  "disclaimer": "SIMULATED RESULTS - produced by a closed-loop soil water balance model with synthetic weather and sensor noise. They compare strategies under identical, documented assumptions and are NOT measured real-world water savings. Field trials are required before claiming savings.",
+  "config": {
+    "seed": 2024,
+    "fields": 10,
+    "fixed_interval_days": 3,
+    "fault_rate": 1.0,
+    "model_version": "random_forest+gradient_boosting-20261010173034",
+    "climate": "semi_arid_monsoon"
+  },
+  "summary_by_strategy": [
+    {
+      "strategy": "fixed_schedule",
+      "water_m3_per_ha": 12724.0,
+      "irrigation_gross_mm": 1272.4,
+      "irrigation_events": 50.9,
+      "pump_hours": 150.09,
+      "stress_days": 0.3,
+      "severe_stress_days": 0.0,
+      "relative_transpiration": 1.0,
+      "deep_drainage_mm": 779.56
+    },
+    {
+      "strategy": "fixed_skip_after_rain",
+      "water_m3_per_ha": 11291.67,
+      "irrigation_gross_mm": 1129.17,
+      "irrigation_events": 45.3,
+      "pump_hours": 133.91,
+      "stress_days": 0.3,
+      "severe_stress_days": 0.0,
+      "relative_transpiration": 1.0,
+      "deep_drainage_mm": 682.81
+    },
+    {
+      "strategy": "calendar_kc_adjusted",
+      "water_m3_per_ha": 8515.8,
+      "irrigation_gross_mm": 851.57,
+      "irrigation_events": 45.3,
+      "pump_hours": 104.22,
+      "stress_days": 6.096,
+      "severe_stress_days": 0.0,
+      "relative_transpiration": 0.99,
+      "deep_drainage_mm": 495.58
+    },
+    {
+      "strategy": "advisor_rules",
+      "water_m3_per_ha": 4643.44,
+      "irrigation_gross_mm": 464.35,
+      "irrigation_events": 12.3,
+      "pump_hours": 59.06,
+      "stress_days": 5.145,
+      "severe_stress_days": 0.0,
+      "relative_transpiration": 0.998,
+      "deep_drainage_mm": 258.13
+    },
+    {
+      "strategy": "advisor_ml_hybrid",
+      "water_m3_per_ha": 4537.06,
+      "irrigation_gross_mm": 453.71,
+      "irrigation_events": 12.4,
+      "pump_hours": 59.93,
+      "stress_days": 7.212,
+      "severe_stress_days": 0.0,
+      "relative_transpiration": 0.997,
+      "deep_drainage_mm": 247.66
+    }
+  ],
+  "baseline": "fixed_schedule",
+  "n_fields": 10,
+  "vs_baseline": {
+    "fixed_skip_after_rain": {
+      "water_saving_pct_total": 11.3,
+      "water_saving_pct_median_field": 10.6,
+      "water_saving_pct_range": [
+        0.0,
+        23.5
+      ],
+      "fields_with_saving": 8,
+      "stress_days_change": 0.0,
+      "relative_transpiration_change": 0.0,
+      "deep_drainage_change_mm": -96.8
+    },
+    "calendar_kc_adjusted": {
+      "water_saving_pct_total": 33.1,
+      "water_saving_pct_median_field": 31.7,
+      "water_saving_pct_range": [
+        21.0,
+        45.0
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 5.8,
+      "relative_transpiration_change": -0.0098,
+      "deep_drainage_change_mm": -284.0
+    },
+    "advisor_rules": {
+      "water_saving_pct_total": 63.5,
+      "water_saving_pct_median_field": 61.5,
+      "water_saving_pct_range": [
+        34.6,
+        91.8
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 4.84,
+      "relative_transpiration_change": -0.0015,
+      "deep_drainage_change_mm": -521.4
+    },
+    "advisor_ml_hybrid": {
+      "water_saving_pct_total": 64.3,
+      "water_saving_pct_median_field": 64.0,
+      "water_saving_pct_range": [
+        33.0,
+        91.8
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 6.91,
+      "relative_transpiration_change": -0.0027,
+      "deep_drainage_change_mm": -531.9
+    }
+  },
+  "vs_fixed_skip_after_rain": {
+    "fixed_schedule": {
+      "water_saving_pct_total": -12.7,
+      "water_saving_pct_median_field": -11.9,
+      "water_saving_pct_range": [
+        -30.8,
+        0.0
+      ],
+      "fields_with_saving": 0,
+      "stress_days_change": 0.0,
+      "relative_transpiration_change": 0.0,
+      "deep_drainage_change_mm": 96.8
+    },
+    "calendar_kc_adjusted": {
+      "water_saving_pct_total": 24.6,
+      "water_saving_pct_median_field": 25.3,
+      "water_saving_pct_range": [
+        11.5,
+        29.0
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 5.8,
+      "relative_transpiration_change": -0.0098,
+      "deep_drainage_change_mm": -187.2
+    },
+    "advisor_rules": {
+      "water_saving_pct_total": 58.9,
+      "water_saving_pct_median_field": 56.3,
+      "water_saving_pct_range": [
+        34.6,
+        89.2
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 4.84,
+      "relative_transpiration_change": -0.0015,
+      "deep_drainage_change_mm": -424.7
+    },
+    "advisor_ml_hybrid": {
+      "water_saving_pct_total": 59.8,
+      "water_saving_pct_median_field": 60.4,
+      "water_saving_pct_range": [
+        33.0,
+        89.2
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 6.91,
+      "relative_transpiration_change": -0.0027,
+      "deep_drainage_change_mm": -435.1
+    }
+  },
+  "vs_calendar_kc_adjusted": {
+    "fixed_schedule": {
+      "water_saving_pct_total": -49.4,
+      "water_saving_pct_median_field": -46.5,
+      "water_saving_pct_range": [
+        -81.8,
+        -26.5
+      ],
+      "fields_with_saving": 0,
+      "stress_days_change": -5.8,
+      "relative_transpiration_change": 0.0098,
+      "deep_drainage_change_mm": 284.0
+    },
+    "fixed_skip_after_rain": {
+      "water_saving_pct_total": -32.6,
+      "water_saving_pct_median_field": -33.9,
+      "water_saving_pct_range": [
+        -40.9,
+        -13.0
+      ],
+      "fields_with_saving": 0,
+      "stress_days_change": -5.8,
+      "relative_transpiration_change": 0.0098,
+      "deep_drainage_change_mm": 187.2
+    },
+    "advisor_rules": {
+      "water_saving_pct_total": 45.5,
+      "water_saving_pct_median_field": 41.5,
+      "water_saving_pct_range": [
+        10.1,
+        85.1
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": -0.95,
+      "relative_transpiration_change": 0.0083,
+      "deep_drainage_change_mm": -237.5
+    },
+    "advisor_ml_hybrid": {
+      "water_saving_pct_total": 46.7,
+      "water_saving_pct_median_field": 47.4,
+      "water_saving_pct_range": [
+        7.9,
+        85.1
+      ],
+      "fields_with_saving": 10,
+      "stress_days_change": 1.12,
+      "relative_transpiration_change": 0.0071,
+      "deep_drainage_change_mm": -247.9
+    }
+  }
+}

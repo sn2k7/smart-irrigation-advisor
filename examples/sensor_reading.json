@@ -1,0 +1,11 @@
+{
+  "field_id": 1,
+  "device_id": "esp32-node-01",
+  "timestamp": "2026-10-10T07:00:00",
+  "soil_moisture": 19.4,
+  "temperature_c": 27.8,
+  "humidity_pct": 64.0,
+  "rainfall_mm": 0.0,
+  "battery_v": 3.92,
+  "rssi_dbm": -67
+}

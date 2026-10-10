@@ -1,0 +1,518 @@
+{
+  "generated_at": "2026-10-10T17:30:34",
+  "disclaimer": "All metrics were computed on SYNTHETIC data produced by this project's simulator. They demonstrate that the pipeline works and allow strategies to be compared under controlled assumptions; they are NOT evidence of real-world accuracy or water savings, which require validation with field data.",
+  "data_source": "synthetic",
+  "package_version": "1.0.0",
+  "feature_schema_version": "1.0",
+  "features": {
+    "numeric": [
+      "temperature_c",
+      "humidity_pct",
+      "rainfall_mm",
+      "temp_max_24h",
+      "temp_min_24h",
+      "humidity_mean_24h",
+      "rain_sum_72h",
+      "hours_since_rain",
+      "depletion_ratio",
+      "dr_mean_6h_ratio",
+      "projected_depletion_ratio",
+      "available_water_fraction",
+      "kc",
+      "raw_taw_ratio",
+      "etc_raw_ratio",
+      "forecast_rain_raw_ratio",
+      "rain_24h_raw_ratio",
+      "sm_delta_1h_ratio",
+      "sm_delta_6h_ratio",
+      "sm_delta_24h_ratio",
+      "sm_std_24h_ratio",
+      "hour_sin",
+      "hour_cos",
+      "sm_imputed",
+      "sm_invalid_hours_24h"
+    ],
+    "categorical": [
+      "growth_stage"
+    ]
+  },
+  "label_horizon_hours": 24,
+  "dataset": {
+    "rows": 106080,
+    "fields": 30,
+    "positive_rate": 0.3237,
+    "fingerprint": "20b2bfc984ca2210",
+    "quality": {
+      "rows": 106080,
+      "fields": 30,
+      "sm_invalid_pct": 2.65,
+      "sm_imputed_pct": 2.33,
+      "sm_still_missing_pct": 0.32,
+      "spikes_detected": 282,
+      "stuck_hours_detected": 262,
+      "out_of_range_hours": 311
+    }
+  },
+  "split": {
+    "method": "held-out fields + chronological test period + rolling-origin CV with embargo",
+    "embargo_hours": 24,
+    "cv_folds": 3,
+    "development_end": "2025-11-29 11:00:00",
+    "test_start": "2025-11-30 12:00:00",
+    "holdout_fields": [
+      "F003",
+      "F013",
+      "F018",
+      "F021",
+      "F026",
+      "F029"
+    ],
+    "rows": {
+      "development": 71040,
+      "test_temporal": 12744,
+      "test_unseen_fields": 22104,
+      "cv_validation_rows": 63522
+    },
+    "cv_out_of_fold": {
+      "rows": 63522,
+      "positive_rate": 0.3128
+    }
+  },
+  "config": {
+    "random_state": 42,
+    "test_fraction": 0.25,
+    "n_folds": 3,
+    "embargo_hours": 24,
+    "holdout_field_fraction": 0.2,
+    "fast": false,
+    "train_stride_hours": 2,
+    "importance_sample": 3000,
+    "data_source": "synthetic"
+  },
+  "classification": {
+    "logistic_regression": {
+      "cross_validation": {
+        "n": 63522,
+        "positive_rate": 0.3128,
+        "threshold": 0.6,
+        "accuracy": 0.9233,
+        "precision": 0.8948,
+        "recall": 0.8555,
+        "f1": 0.8747,
+        "roc_auc": 0.9663,
+        "confusion_matrix": {
+          "tn": 41655,
+          "fp": 1998,
+          "fn": 2872,
+          "tp": 16997
+        }
+      },
+      "test_temporal": {
+        "n": 12744,
+        "positive_rate": 0.2577,
+        "threshold": 0.6,
+        "accuracy": 0.9282,
+        "precision": 0.7836,
+        "recall": 0.9967,
+        "f1": 0.8774,
+        "roc_auc": 0.9936,
+        "confusion_matrix": {
+          "tn": 8556,
+          "fp": 904,
+          "fn": 11,
+          "tp": 3273
+        }
+      },
+      "test_unseen_fields": {
+        "n": 22104,
+        "positive_rate": 0.322,
+        "threshold": 0.6,
+        "accuracy": 0.9061,
+        "precision": 0.796,
+        "recall": 0.9527,
+        "f1": 0.8673,
+        "roc_auc": 0.9823,
+        "confusion_matrix": {
+          "tn": 13248,
+          "fp": 1738,
+          "fn": 337,
+          "tp": 6781
+        }
+      }
+    },
+    "random_forest": {
+      "cross_validation": {
+        "n": 63522,
+        "positive_rate": 0.3128,
+        "threshold": 0.4,
+        "accuracy": 0.93,
+        "precision": 0.8761,
+        "recall": 0.9042,
+        "f1": 0.8899,
+        "roc_auc": 0.9753,
+        "confusion_matrix": {
+          "tn": 41112,
+          "fp": 2541,
+          "fn": 1903,
+          "tp": 17966
+        }
+      },
+      "test_temporal": {
+        "n": 12744,
+        "positive_rate": 0.2577,
+        "threshold": 0.4,
+        "accuracy": 0.932,
+        "precision": 0.7921,
+        "recall": 0.9979,
+        "f1": 0.8832,
+        "roc_auc": 0.997,
+        "confusion_matrix": {
+          "tn": 8600,
+          "fp": 860,
+          "fn": 7,
+          "tp": 3277
+        }
+      },
+      "test_unseen_fields": {
+        "n": 22104,
+        "positive_rate": 0.322,
+        "threshold": 0.4,
+        "accuracy": 0.8998,
+        "precision": 0.7884,
+        "recall": 0.9417,
+        "f1": 0.8583,
+        "roc_auc": 0.9784,
+        "confusion_matrix": {
+          "tn": 13187,
+          "fp": 1799,
+          "fn": 415,
+          "tp": 6703
+        }
+      }
+    },
+    "gradient_boosting": {
+      "cross_validation": {
+        "n": 63522,
+        "positive_rate": 0.3128,
+        "threshold": 0.475,
+        "accuracy": 0.9264,
+        "precision": 0.8885,
+        "recall": 0.8745,
+        "f1": 0.8814,
+        "roc_auc": 0.9614,
+        "confusion_matrix": {
+          "tn": 41472,
+          "fp": 2181,
+          "fn": 2494,
+          "tp": 17375
+        }
+      },
+      "test_temporal": {
+        "n": 12744,
+        "positive_rate": 0.2577,
+        "threshold": 0.475,
+        "accuracy": 0.9467,
+        "precision": 0.8307,
+        "recall": 0.9963,
+        "f1": 0.906,
+        "roc_auc": 0.9941,
+        "confusion_matrix": {
+          "tn": 8793,
+          "fp": 667,
+          "fn": 12,
+          "tp": 3272
+        }
+      },
+      "test_unseen_fields": {
+        "n": 22104,
+        "positive_rate": 0.322,
+        "threshold": 0.475,
+        "accuracy": 0.9128,
+        "precision": 0.8314,
+        "recall": 0.9146,
+        "f1": 0.871,
+        "roc_auc": 0.9795,
+        "confusion_matrix": {
+          "tn": 13666,
+          "fp": 1320,
+          "fn": 608,
+          "tp": 6510
+        }
+      }
+    },
+    "rule_based_fao56": {
+      "cross_validation": {
+        "n": 63522,
+        "positive_rate": 0.3128,
+        "threshold": 0.5,
+        "accuracy": 0.9282,
+        "precision": 0.8902,
+        "recall": 0.8787,
+        "f1": 0.8844,
+        "roc_auc": 0.9147,
+        "confusion_matrix": {
+          "tn": 41499,
+          "fp": 2154,
+          "fn": 2410,
+          "tp": 17459
+        }
+      },
+      "test_temporal": {
+        "n": 12744,
+        "positive_rate": 0.2577,
+        "threshold": 0.5,
+        "accuracy": 0.9528,
+        "precision": 0.8533,
+        "recall": 0.9863,
+        "f1": 0.915,
+        "roc_auc": 0.9637,
+        "confusion_matrix": {
+          "tn": 8903,
+          "fp": 557,
+          "fn": 45,
+          "tp": 3239
+        }
+      },
+      "test_unseen_fields": {
+        "n": 22104,
+        "positive_rate": 0.322,
+        "threshold": 0.5,
+        "accuracy": 0.9264,
+        "precision": 0.8556,
+        "recall": 0.9281,
+        "f1": 0.8904,
+        "roc_auc": 0.9268,
+        "confusion_matrix": {
+          "tn": 13871,
+          "fp": 1115,
+          "fn": 512,
+          "tp": 6606
+        }
+      }
+    }
+  },
+  "regression": {
+    "ridge": {
+      "cross_validation": {
+        "n": 19869,
+        "mae_mm": 6.975,
+        "rmse_mm": 10.637,
+        "r2": 0.9456
+      },
+      "test_temporal": {
+        "n": 3284,
+        "mae_mm": 11.439,
+        "rmse_mm": 12.34,
+        "r2": 0.8521
+      },
+      "test_unseen_fields": {
+        "n": 7118,
+        "mae_mm": 6.751,
+        "rmse_mm": 9.451,
+        "r2": 0.9822
+      }
+    },
+    "random_forest": {
+      "cross_validation": {
+        "n": 19869,
+        "mae_mm": 6.736,
+        "rmse_mm": 10.274,
+        "r2": 0.9493
+      },
+      "test_temporal": {
+        "n": 3284,
+        "mae_mm": 6.426,
+        "rmse_mm": 7.996,
+        "r2": 0.9379
+      },
+      "test_unseen_fields": {
+        "n": 7118,
+        "mae_mm": 7.012,
+        "rmse_mm": 11.121,
+        "r2": 0.9753
+      }
+    },
+    "gradient_boosting": {
+      "cross_validation": {
+        "n": 19869,
+        "mae_mm": 6.641,
+        "rmse_mm": 10.18,
+        "r2": 0.9502
+      },
+      "test_temporal": {
+        "n": 3284,
+        "mae_mm": 7.63,
+        "rmse_mm": 9.425,
+        "r2": 0.9137
+      },
+      "test_unseen_fields": {
+        "n": 7118,
+        "mae_mm": 8.291,
+        "rmse_mm": 10.964,
+        "r2": 0.976
+      }
+    },
+    "rule_based_fao56": {
+      "cross_validation": {
+        "n": 19869,
+        "mae_mm": 8.57,
+        "rmse_mm": 13.565,
+        "r2": 0.9116
+      },
+      "test_temporal": {
+        "n": 3284,
+        "mae_mm": 9.096,
+        "rmse_mm": 11.486,
+        "r2": 0.8718
+      },
+      "test_unseen_fields": {
+        "n": 7118,
+        "mae_mm": 7.034,
+        "rmse_mm": 11.12,
+        "r2": 0.9753
+      }
+    }
+  },
+  "selected": {
+    "classifier": "random_forest",
+    "regressor": "gradient_boosting",
+    "best_ml_classifier": "random_forest",
+    "best_ml_regressor": "gradient_boosting",
+    "threshold": 0.4,
+    "depth_parsimony_margin_pct": 5,
+    "model_version": "random_forest+gradient_boosting-20261010173034",
+    "notes": "random_forest beat the FAO-56 rule on cross-validated F1 (0.890 vs 0.884). gradient_boosting beat the FAO-56 depth formula on cross-validated MAE (6.64 vs 8.57 mm)."
+  },
+  "feature_importance": [
+    {
+      "feature": "dr_mean_6h_ratio",
+      "importance": 0.19268,
+      "std": 0.00504
+    },
+    {
+      "feature": "temp_max_24h",
+      "importance": 0.01575,
+      "std": 0.00068
+    },
+    {
+      "feature": "etc_raw_ratio",
+      "importance": 0.01469,
+      "std": 0.0004
+    },
+    {
+      "feature": "raw_taw_ratio",
+      "importance": 0.01288,
+      "std": 0.00173
+    },
+    {
+      "feature": "temp_min_24h",
+      "importance": 0.00909,
+      "std": 0.00133
+    },
+    {
+      "feature": "kc",
+      "importance": 0.00619,
+      "std": 0.00083
+    },
+    {
+      "feature": "humidity_mean_24h",
+      "importance": 0.00467,
+      "std": 0.00041
+    },
+    {
+      "feature": "growth_stage",
+      "importance": 0.00452,
+      "std": 0.0012
+    },
+    {
+      "feature": "available_water_fraction",
+      "importance": 0.00344,
+      "std": 0.00064
+    },
+    {
+      "feature": "hours_since_rain",
+      "importance": 0.00277,
+      "std": 0.00048
+    },
+    {
+      "feature": "projected_depletion_ratio",
+      "importance": 0.00253,
+      "std": 0.00072
+    },
+    {
+      "feature": "sm_std_24h_ratio",
+      "importance": 0.00224,
+      "std": 0.00064
+    },
+    {
+      "feature": "rain_sum_72h",
+      "importance": 0.00216,
+      "std": 0.00147
+    },
+    {
+      "feature": "humidity_pct",
+      "importance": 0.00139,
+      "std": 0.00025
+    },
+    {
+      "feature": "sm_delta_24h_ratio",
+      "importance": 0.00116,
+      "std": 0.00023
+    },
+    {
+      "feature": "sm_delta_6h_ratio",
+      "importance": 0.00101,
+      "std": 0.00041
+    },
+    {
+      "feature": "sm_delta_1h_ratio",
+      "importance": 0.0007,
+      "std": 0.00064
+    },
+    {
+      "feature": "depletion_ratio",
+      "importance": 0.00057,
+      "std": 0.00073
+    },
+    {
+      "feature": "rain_24h_raw_ratio",
+      "importance": 0.00052,
+      "std": 0.0
+    },
+    {
+      "feature": "temperature_c",
+      "importance": 0.00035,
+      "std": 0.00024
+    },
+    {
+      "feature": "hour_sin",
+      "importance": 0.0,
+      "std": 0.00043
+    },
+    {
+      "feature": "sm_imputed",
+      "importance": 0.0,
+      "std": 0.0
+    },
+    {
+      "feature": "rainfall_mm",
+      "importance": 0.0,
+      "std": 0.0
+    },
+    {
+      "feature": "hour_cos",
+      "importance": -1e-05,
+      "std": 0.00042
+    },
+    {
+      "feature": "sm_invalid_hours_24h",
+      "importance": -0.00017,
+      "std": 0.00024
+    },
+    {
+      "feature": "forecast_rain_raw_ratio",
+      "importance": -0.00017,
+      "std": 0.00025
+    }
+  ]
+}

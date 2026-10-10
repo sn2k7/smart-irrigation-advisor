@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+logs/
+*.db
+*.db-wal
+*.db-shm
+# generated artefacts (re-create with the scripts)
+data/*.csv
+models/
+.idea/
+.vscode/

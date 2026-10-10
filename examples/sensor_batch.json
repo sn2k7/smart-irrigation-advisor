@@ -1,0 +1,7 @@
+{
+  "readings": [
+    {"field_id": 1, "timestamp": "2026-10-10T04:00:00", "soil_moisture": 20.1, "temperature_c": 21.5, "humidity_pct": 82, "rainfall_mm": 0.0},
+    {"field_id": 1, "timestamp": "2026-10-10T05:00:00", "soil_moisture": 20.0, "temperature_c": 21.0, "humidity_pct": 84, "rainfall_mm": 0.0},
+    {"field_id": 1, "timestamp": "2026-10-10T06:00:00", "soil_moisture": 19.9, "temperature_c": 21.2, "humidity_pct": 83, "rainfall_mm": 0.0}
+  ]
+}

@@ -1,0 +1,25 @@
+time,plot_id,moisture,temp,humidity,rain,crop,soil,sowing_date
+2026-07-01 00:00,plotA,24.1,24.2,78,0,tomato,sandy_loam,2026-05-20
+2026-07-01 01:00,plotA,24.0,23.8,80,0,tomato,sandy_loam,2026-05-20
+2026-07-01 02:00,plotA,24.0,23.5,81,0,tomato,sandy_loam,2026-05-20
+2026-07-01 03:00,plotA,23.9,23.1,83,0,tomato,sandy_loam,2026-05-20
+2026-07-01 04:00,plotA,23.9,22.9,84,0,tomato,sandy_loam,2026-05-20
+2026-07-01 05:00,plotA,23.8,22.8,85,0,tomato,sandy_loam,2026-05-20
+2026-07-01 06:00,plotA,23.8,23.4,82,0,tomato,sandy_loam,2026-05-20
+2026-07-01 07:00,plotA,23.7,25.1,75,0,tomato,sandy_loam,2026-05-20
+2026-07-01 08:00,plotA,23.5,27.0,68,0,tomato,sandy_loam,2026-05-20
+2026-07-01 09:00,plotA,23.3,28.9,61,0,tomato,sandy_loam,2026-05-20
+2026-07-01 10:00,plotA,23.0,30.4,55,0,tomato,sandy_loam,2026-05-20
+2026-07-01 11:00,plotA,22.7,31.6,51,0,tomato,sandy_loam,2026-05-20
+2026-07-01 12:00,plotA,22.4,32.3,48,0,tomato,sandy_loam,2026-05-20
+2026-07-01 13:00,plotA,22.1,32.6,47,0,tomato,sandy_loam,2026-05-20
+2026-07-01 14:00,plotA,21.8,32.4,48,0,tomato,sandy_loam,2026-05-20
+2026-07-01 15:00,plotA,21.6,31.8,50,3.4,tomato,sandy_loam,2026-05-20
+2026-07-01 16:00,plotA,22.9,29.0,68,6.2,tomato,sandy_loam,2026-05-20
+2026-07-01 17:00,plotA,23.6,27.1,79,0.8,tomato,sandy_loam,2026-05-20
+2026-07-01 18:00,plotA,23.5,26.0,82,0,tomato,sandy_loam,2026-05-20
+2026-07-01 19:00,plotA,23.5,25.4,83,0,tomato,sandy_loam,2026-05-20
+2026-07-01 20:00,plotA,23.4,25.0,84,0,tomato,sandy_loam,2026-05-20
+2026-07-01 21:00,plotA,23.4,24.7,85,0,tomato,sandy_loam,2026-05-20
+2026-07-01 22:00,plotA,23.4,24.4,86,0,tomato,sandy_loam,2026-05-20
+2026-07-01 23:00,plotA,23.3,24.2,86,0,tomato,sandy_loam,2026-05-20

@@ -1,0 +1,11 @@
+{
+  "crop_type": "tomato",
+  "soil_type": "sandy_loam",
+  "irrigation_method": "drip",
+  "days_since_planting": 60,
+  "soil_moisture_pct": 15.5,
+  "area_m2": 1000,
+  "flow_rate_lpm": 60,
+  "et0_mm_day": 5.5,
+  "forecast_rain_24h_mm": 0
+}

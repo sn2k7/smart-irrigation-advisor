@@ -1,0 +1,12 @@
+{
+  "name": "North plot",
+  "crop_type": "maize",
+  "soil_type": "loam",
+  "irrigation_method": "drip",
+  "planting_date": "2026-08-15",
+  "area_m2": 2000,
+  "flow_rate_lpm": 120,
+  "latitude": 18.5,
+  "longitude": 73.85,
+  "max_irrigation_minutes": 180
+}

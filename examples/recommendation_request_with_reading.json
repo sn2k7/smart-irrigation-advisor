@@ -1,0 +1,11 @@
+{
+  "field_id": 1,
+  "reading": {
+    "timestamp": "2026-10-10T09:00:00",
+    "soil_moisture": 19.1,
+    "temperature_c": 30.2,
+    "humidity_pct": 55.0,
+    "rainfall_mm": 0.0
+  },
+  "forecast_rain_24h_mm": 12.0
+}
