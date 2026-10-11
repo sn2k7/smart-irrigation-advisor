@@ -49,6 +49,8 @@ logger = logging.getLogger(__name__)
 RULE = "rule_based_fao56"
 #: ML depth model must beat the FAO-56 formula's cross-validated MAE by this share.
 DEPTH_PARSIMONY_MARGIN = 0.05
+#: Minimum rows with a known depth needed to train/evaluate regressors.
+MIN_DEPTH_ROWS = 20
 
 
 @dataclass
@@ -92,7 +94,9 @@ def build_training_frame(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any
         logger.info("Dataset has no labels - deriving weak labels from observations")
         feats = derive_labels_from_observations(feats)
     before = len(feats)
-    feats = feats.dropna(subset=[TARGET_CLASS, TARGET_REG]).reset_index(drop=True)
+    # Depth may be unknown for some rows (e.g. a custom dataset with only yes/no labels);
+    # those rows still train the classifier and are skipped by the regressors.
+    feats = feats.dropna(subset=[TARGET_CLASS]).reset_index(drop=True)
     feats[TARGET_CLASS] = feats[TARGET_CLASS].astype(int)
     logger.info("Training frame: %d rows (%d dropped without complete labels)", len(feats), before - len(feats))
     if feats[TARGET_CLASS].nunique() < 2:
@@ -114,8 +118,13 @@ def _depth(model: Any, frame: pd.DataFrame) -> np.ndarray:
     return np.clip(model.predict(frame[FEATURE_COLUMNS]) * frame["raw_mm"].to_numpy(), 0, None)
 
 
+def _depth_rows(frame: pd.DataFrame) -> pd.DataFrame:
+    """Rows usable for depth regression: irrigation needed and depth known."""
+    return frame[(frame[TARGET_CLASS] == 1) & frame[TARGET_REG].notna()]
+
+
 def _fit_regressor(model: Any, frame: pd.DataFrame) -> Any:
-    pos = frame[frame[TARGET_CLASS] == 1]
+    pos = _depth_rows(frame)
     return model.fit(pos[FEATURE_COLUMNS], (pos[TARGET_REG] / pos["raw_mm"]).to_numpy())
 
 
@@ -149,9 +158,13 @@ def _cross_validate(split: DataSplit, config: TrainingConfig) -> tuple[dict, dic
             logger.info("CV fold %d/%d: classifier %s on %d rows", k, len(split.folds), name, len(train))
             pipe.fit(train[FEATURE_COLUMNS], train[TARGET_CLASS])
             cls_prob[name][rows] = pipe.predict_proba(val[FEATURE_COLUMNS])[:, 1]
-        for name, pipe in build_regressors(config.random_state, config.fast).items():
-            _fit_regressor(pipe, train)
-            reg_pred[name][rows] = _depth(pipe, val)
+        if len(_depth_rows(train)) >= MIN_DEPTH_ROWS:
+            for name, pipe in build_regressors(config.random_state, config.fast).items():
+                _fit_regressor(pipe, train)
+                reg_pred[name][rows] = _depth(pipe, val)
+        else:
+            for name in reg_pred:
+                reg_pred[name][rows] = np.nan
         offset += len(val)
 
     y = oof[TARGET_CLASS].to_numpy()
@@ -159,9 +172,13 @@ def _cross_validate(split: DataSplit, config: TrainingConfig) -> tuple[dict, dic
     rule_decision, _ = rule_baseline_predictions(oof)
     cls_cv[RULE] = classification_metrics(y, rule_decision.astype(float), 0.5)
 
-    pos = y == 1
+    pos = (y == 1) & oof[TARGET_REG].notna().to_numpy()
     y_depth = oof[TARGET_REG].to_numpy()[pos]
-    reg_cv: dict[str, Any] = {name: regression_metrics(y_depth, pred[pos]) for name, pred in reg_pred.items()}
+    reg_cv: dict[str, Any] = {}
+    for name, pred in reg_pred.items():
+        ok = np.isfinite(pred[pos])
+        reg_cv[name] = regression_metrics(y_depth[ok], pred[pos][ok]) if ok.sum() >= MIN_DEPTH_ROWS else \
+            regression_metrics(np.array([]), np.array([]))
     reg_cv[RULE] = regression_metrics(y_depth, rule_net_depth(oof)[pos])
     return cls_cv, reg_cv, {"rows": len(oof), "positive_rate": round(float(y.mean()), 4)}, oof
 
@@ -205,10 +222,15 @@ def train_models(
         notes.append(f"No ML classifier beat the FAO-56 rule on cross-validated F1 ({cls_cv[RULE]['f1']:.3f}); the rule is kept.")
     threshold = cls_cv[best_ml]["threshold"] if decision_model != RULE else 0.5
 
-    best_ml_reg = min((n for n in reg_cv if n != RULE), key=lambda n: reg_cv[n]["mae_mm"])
-    rule_mae, ml_mae = reg_cv[RULE]["mae_mm"], reg_cv[best_ml_reg]["mae_mm"]
+    scored = [n for n in reg_cv if n != RULE and reg_cv[n]["mae_mm"] is not None]
+    best_ml_reg = min(scored, key=lambda n: reg_cv[n]["mae_mm"]) if scored else "none"
+    rule_mae = reg_cv[RULE]["mae_mm"]
+    ml_mae = reg_cv[best_ml_reg]["mae_mm"] if scored else None
     # Parsimony: depth errors cost water directly and the formula is fully explainable.
-    if ml_mae < (1 - DEPTH_PARSIMONY_MARGIN) * rule_mae:
+    if not scored or rule_mae is None:
+        depth_model = RULE
+        notes.append("Too few rows with known irrigation depth - the FAO-56 formula is used for depth.")
+    elif ml_mae < (1 - DEPTH_PARSIMONY_MARGIN) * rule_mae:
         depth_model = best_ml_reg
         notes.append(f"{best_ml_reg} beat the FAO-56 depth formula on cross-validated MAE ({ml_mae:.2f} vs {rule_mae:.2f} mm).")
     else:
@@ -226,9 +248,10 @@ def train_models(
     for name, pipe in build_classifiers(config.random_state, config.fast).items():
         logger.info("Final fit: classifier %s on %d rows", name, len(dev_train))
         fitted[name] = pipe.fit(dev_train[FEATURE_COLUMNS], dev_train[TARGET_CLASS])
-    reg_fitted = {
-        name: _fit_regressor(pipe, dev_train) for name, pipe in build_regressors(config.random_state, config.fast).items()
-    }
+    reg_fitted = (
+        {name: _fit_regressor(pipe, dev_train) for name, pipe in build_regressors(config.random_state, config.fast).items()}
+        if len(_depth_rows(dev_train)) >= MIN_DEPTH_ROWS else {}
+    )
 
     # ---------------- single evaluation on the test sets ---------------------
     eval_sets = {"test_temporal": split.test_temporal, "test_unseen_fields": split.test_unseen_fields}
@@ -252,7 +275,7 @@ def train_models(
     for name in [*reg_fitted, RULE]:
         entry = {"cross_validation": reg_cv[name]}
         for set_name, frame in eval_sets.items():
-            pos = frame[frame[TARGET_CLASS] == 1]
+            pos = _depth_rows(frame)
             if not len(pos):
                 entry[set_name] = regression_metrics(np.array([]), np.array([]))
                 continue
@@ -269,7 +292,9 @@ def train_models(
     model_version = f"{decision_model}+{depth_model}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     disclaimer = (
         SYNTHETIC_DISCLAIMER if config.data_source == "synthetic"
-        else "Metrics computed on user-supplied data with labels derived from observations (weak labels)."
+        else "Metrics computed on user-supplied data. If labels were derived from the observations "
+        "(labels.mode = 'derive'), they are FAO-56 weak labels and the rule baseline is partly scored "
+        "against its own definition."
     )
     report: dict[str, Any] = {
         "generated_at": trained_at,
@@ -349,7 +374,7 @@ def _write_plots(result: TrainingResult, regressor: Any, reports_dir: Path) -> d
     if len(result.split.test_unseen_fields):
         out["confusion_unseen"] = plots.plot_confusion_matrices(
             report["classification"], "test_unseen_fields", reports_dir / "confusion_matrices_unseen_fields.png")
-    pos = result.split.test_temporal[result.split.test_temporal[TARGET_CLASS] == 1]
+    pos = _depth_rows(result.split.test_temporal)
     if len(pos):
         pred = _depth(regressor, pos) if regressor is not None else rule_net_depth(pos)
         out["regression_scatter"] = plots.plot_regression_scatter(

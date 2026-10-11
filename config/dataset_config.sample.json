@@ -1,0 +1,23 @@
+{
+  "_comment": "Working example: a dataset in a 'foreign' format (Fahrenheit, moisture as 0-1 fraction, cumulative rain in inches, different column names). Create the file with: python scripts/generate_dataset.py --fields 12 --export-foreign data/foreign_format_sample.csv",
+  "name": "foreign_format_sample",
+  "path": "data/foreign_format_sample.csv",
+  "column_map": {
+    "timestamp": "DateTime",
+    "field_id": "NodeID",
+    "soil_moisture": "VWC_frac",
+    "temperature_c": "AirTemp_F",
+    "humidity_pct": "RH",
+    "rainfall_mm": "RainTotal_in",
+    "crop_type": "Crop",
+    "soil_type": "SoilTexture",
+    "planting_date": "Sown"
+  },
+  "timestamp_format": "%d/%m/%Y %H:%M",
+  "dayfirst": true,
+  "units": {"soil_moisture": "fraction", "temperature": "fahrenheit", "rainfall": "inch", "rainfall_mode": "cumulative"},
+  "fields": {
+    "defaults": {"irrigation_method": "drip", "latitude": 18.5}
+  },
+  "labels": {"mode": "derive"}
+}

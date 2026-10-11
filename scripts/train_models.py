@@ -5,6 +5,7 @@ Usage (PowerShell):
     python scripts/train_models.py --generate --fields 30    # generate data first
     python scripts/train_models.py --external-csv my.csv --crop maize --soil loam
     python scripts/train_models.py --fast                   # quick run (fewer trees)
+    python scripts/train_models.py --dataset-config config/my_dataset.json   # YOUR dataset (see config/)
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from pathlib import Path
 import _bootstrap  # noqa: F401
 
 from irrigation_advisor.config import get_settings
+from irrigation_advisor.data.custom_dataset import load_custom_dataset, load_dataset_config
 from irrigation_advisor.data.loader import load_dataset, load_external_csv, save_dataset
 from irrigation_advisor.data.simulator import generate_dataset
 from irrigation_advisor.logging_config import configure_logging
@@ -32,7 +34,8 @@ def main() -> None:
     parser.add_argument("--generate", action="store_true", help="generate the synthetic dataset first")
     parser.add_argument("--fields", type=int, default=30)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--external-csv", help="train on an external CSV instead (weak labels derived)")
+    parser.add_argument("--dataset-config", help="JSON config describing YOUR dataset (config/dataset_config.example.json)")
+    parser.add_argument("--external-csv", help="train on an external CSV with standard/alias column names (weak labels)")
     parser.add_argument("--crop", help="crop for external CSV rows without crop_type")
     parser.add_argument("--soil", help="soil for external CSV rows without soil_type")
     parser.add_argument("--fast", action="store_true", help="fewer trees (quick demo/CI)")
@@ -43,7 +46,11 @@ def main() -> None:
     configure_logging(settings.log_level)
 
     source = "synthetic"
-    if args.external_csv:
+    if args.dataset_config:
+        raw, conversion = load_custom_dataset(load_dataset_config(args.dataset_config))
+        logger.info("Custom dataset: %s", json.dumps(conversion, indent=2, default=str))
+        source = "custom"
+    elif args.external_csv:
         defaults = {k: v for k, v in {"crop_type": args.crop, "soil_type": args.soil}.items() if v}
         raw = load_external_csv(args.external_csv, defaults)
         source = "external"

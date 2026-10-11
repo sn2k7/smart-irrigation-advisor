@@ -12,6 +12,10 @@ forecast, crop type/stage and the field's recent sensor history.
   safety overrides and two fallback levels keep it working when sensors fail.
 * **Runs anywhere:** FastAPI and SQLite, simulated offline weather and an ESP32-ready IoT endpoint.
   No paid APIs, internet access or hardware are needed.
+* **Desktop app:** a PySide6 (Qt) frontend for dashboards, readings, CSV import, history, analytics and the
+  calculator ([`docs/FRONTEND.md`](docs/FRONTEND.md)).
+* **Bring your own dataset:** a JSON config plus a hooks file let you plug in a different dataset without
+  touching the pipeline ([`config/README.md`](config/README.md)).
 
 > **Honesty notice.** All training data, weather and water-savings figures in this repository are
 > **synthetic/simulated**. They show that the method works and let strategies be compared under stated
@@ -31,9 +35,9 @@ pip install -r requirements.txt
 # 2. data -> models -> simulation -> demo database -> tests (one command, ~5-10 min)
 .\scripts\run_full_pipeline.ps1            # add -Fast for a ~2 min version
 
-# 3. start the API
-uvicorn irrigation_advisor.api.main:app --host 127.0.0.1 --port 8000
-# open http://127.0.0.1:8000/docs
+# 3. start the API + desktop app
+.\scripts\run_gui.ps1
+# or only the API: uvicorn irrigation_advisor.api.main:app --host 127.0.0.1 --port 8000  (docs at /docs)
 ```
 
 Individual steps:
@@ -43,7 +47,8 @@ python scripts/generate_dataset.py --fields 30 --seed 42      # SYNTHETIC datase
 python scripts/train_models.py                                # train + evaluate -> models/, reports/
 python scripts/run_simulation.py --fields 10                  # closed-loop comparison -> reports/
 python scripts/seed_demo_data.py --reset                      # 3 demo fields with 5 days of data
-python -m pytest -q                                           # 122 unit/integration/API tests
+python -m pytest -q                                           # unit/integration/API/GUI tests
+python -m irrigation_gui --api-url http://127.0.0.1:8000      # desktop app (API must be running)
 uvicorn irrigation_advisor.api.main:app --port 8000           # API
 .\scripts\demo_api.ps1                                        # scripted API walkthrough (2nd window)
 python scripts/iot_device_simulator.py --field-id 1 --inject-faults   # fake ESP32 node (2nd window)
@@ -86,6 +91,8 @@ Full directory tree and design decisions: [`docs/ARCHITECTURE.md`](docs/ARCHITEC
 | `irrigation_advisor/simulation` | fixed-schedule baselines vs advisor, closed loop |
 | `irrigation_advisor/db` | schema, connections, repository/analytics SQL |
 | `irrigation_advisor/api` | FastAPI app, schemas, routers |
+| `irrigation_gui` | PySide6 desktop frontend (API client, threaded tasks, pages, charts, CSV import) |
+| `config/` | dataset config template + working sample for plugging in your own data |
 
 ---
 
@@ -238,35 +245,56 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/v1/recommendations
 
 ---
 
-## 7. Data, storage and IoT
+## 7. Using a different dataset
+
+The code leaves a defined slot for your data, so no pipeline changes are needed:
+
+| Where | What you fill in |
+|---|---|
+| `config/dataset_config.example.json` | copy it and replace the `<...>` placeholders: file path, your column names, units (% / fraction / raw ADC, °C/°F/K, mm/inch, per-row or cumulative rain), timestamp format, field metadata (crop, soil, method, planting date, latitude), label mode |
+| `irrigation_advisor/data/dataset_hooks.py` | optional code for things a mapping cannot express (merge files, pivot long data, per-probe calibration, your own labels). Search for `TODO(dataset)` |
+
+```powershell
+Copy-Item config\dataset_config.example.json config\my_dataset.json      # edit the <...> values
+python scripts/prepare_custom_dataset.py --config config\my_dataset.json   # check mapping, units, quality
+python scripts/train_models.py --dataset-config config\my_dataset.json     # train + evaluate on your data
+```
+
+Labels: `"derive"` computes FAO-56 weak labels from your observations, or use `"columns"` with your own
+`target_irrigation_needed` (and optionally `target_irrigation_mm`). With derived labels the rule baseline
+is partly scored against its own definition, so treat its score with care. A worked example with a
+deliberately foreign format: `python scripts/generate_dataset.py --fields 12 --export-foreign data/foreign_format_sample.csv`,
+then use `config/dataset_config.sample.json`. The desktop app's CSV import uses the same adapter.
+
+## 8. Data, storage and IoT
 
 * **Database:** [`docs/DATABASE.md`](docs/DATABASE.md). Five tables, foreign keys with cascade, WAL mode,
   unique `(field, device, timestamp)` so re-sent messages are ignored. Invalid readings are kept
   (flagged) for diagnostics.
-* **External data:** `python scripts/train_models.py --external-csv my.csv --crop maize --soil loam`.
-  Columns such as `time, moisture, temp, humidity, rain` are mapped automatically. Without labels, weak
-  labels are derived from the observations.
+* **Quick external CSV:** `python scripts/train_models.py --external-csv my.csv --crop maize --soil loam`
+  maps common column names automatically. For anything else, use the dataset config in section 7.
 * **IoT:** [`firmware/`](firmware/) contains a reference ESP32 sketch (capacitive probe, DHT22, rain gauge,
   relay). `scripts/iot_device_simulator.py` sends the same payloads without hardware.
 
 ---
 
-## 8. Deployment
+## 9. Deployment
 
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): LAN serving, Windows service (NSSM), systemd,
 configuration reference (`.env.example`), model hot-reload, backups, security notes and troubleshooting.
 
 ---
 
-## 9. Verification
+## 10. Verification
 
-* `python -m pytest -q` runs the unit, integration and API tests (agronomy maths against FAO-56 worked
+* `python -m pytest -q` runs the unit, integration, API and GUI tests (agronomy maths against FAO-56 worked
   examples, validation rules, preprocessing, leakage tests, splitting, training/selection, engine paths
-  and fallbacks, simulation, repository SQL and every API endpoint).
+  and fallbacks, simulation, repository SQL, every API endpoint, the custom-dataset adapter and the
+  desktop app driven headless).
 * Static check: `python -m pyflakes irrigation_advisor scripts tests` (only intentional `_bootstrap` imports reported).
 * Implementation checklist: [`docs/CHECKLIST.md`](docs/CHECKLIST.md).
 
-## 10. Limitations and next steps
+## 11. Limitations and next steps
 
 * Validate on real field data (one season of paired plots: advisor vs farmer practice).
 * Calibrate each capacitive probe; per-probe bias cannot be learned from its own data.

@@ -28,6 +28,8 @@ smart-irrigation-advisor/
 │   │   ├── weather_provider.py    # offline WeatherProvider (pluggable interface)
 │   │   ├── simulator.py           # synthetic dataset generator (fields, farmers, sensors, faults)
 │   │   ├── loader.py              # external CSV loading with column aliases
+│   │   ├── custom_dataset.py      # YOUR dataset: JSON-config driven mapping/units/metadata adapter
+│   │   ├── dataset_hooks.py       # YOUR code: before_mapping / custom_transform (TODO(dataset))
 │   │   ├── validation.py          # sensor plausibility rules (row + frame level)
 │   │   ├── preprocessing.py       # cleaning + hourly standardisation  ┐ shared by
 │   │   ├── features.py            # time-series feature engineering    ┘ training & inference
@@ -56,8 +58,15 @@ smart-irrigation-advisor/
 │       ├── services.py            # ingest + recommend use cases
 │       └── routers/               # health, fields, readings, iot, recommendations,
 │                                  # events, analytics, weather, model, tools
-├── scripts/                       # generate_dataset, train_models, run_simulation,
-│                                  # seed_demo_data, iot_device_simulator, *.ps1
+├── irrigation_gui/                # PySide6 desktop frontend (talks to the API only)
+│   ├── app.py  main_window.py     # bootstrap, navigation, field selector, status
+│   ├── api_client.py  tasks.py    # HTTP client, thread-pool task runner
+│   ├── import_dialog.py           # CSV import using data/custom_dataset.py
+│   ├── charts.py  widgets.py  theme.py
+│   └── pages/                     # dashboard, readings, history, analytics, fields, calculator, model
+├── config/                        # dataset_config.example.json (template) + sample
+├── scripts/                       # generate_dataset, train_models, prepare_custom_dataset, run_simulation,
+│                                  # seed_demo_data, iot_device_simulator, *.ps1 (run_gui.ps1)
 ├── tests/                         # unit, integration and API tests (pytest)
 ├── examples/                      # example JSON payloads + external CSV format
 ├── firmware/esp32_soil_node/      # reference ESP32 sketch
@@ -70,7 +79,7 @@ smart-irrigation-advisor/
 ## 3. Component diagram
 
 ```
-          ESP32 / Arduino node            Farmer app / dashboard / curl / Swagger UI
+          ESP32 / Arduino node        PySide6 desktop app (irrigation_gui) / curl / Swagger UI
                  │  compact JSON                         │  REST JSON
                  ▼                                       ▼
 ┌────────────────────────────────── FastAPI (irrigation_advisor.api) ─────────────────────────────┐

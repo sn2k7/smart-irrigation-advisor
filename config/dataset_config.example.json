@@ -1,0 +1,52 @@
+{
+  "_comment": "TEMPLATE - copy to config/my_dataset.json and replace every <...> value. Delete keys you do not have. Keys starting with '_' are ignored.",
+  "name": "my_farm_dataset",
+  "path": "<data/your_file.csv>",
+  "delimiter": ",",
+  "encoding": "utf-8",
+
+  "_column_map_help": "internal name -> YOUR column header. Required: timestamp, soil_moisture. Strongly recommended: temperature_c, humidity_pct, rainfall_mm. Optional: field_id, crop_type, soil_type, irrigation_method, planting_date, latitude, target_irrigation_needed, target_irrigation_mm.",
+  "column_map": {
+    "timestamp": "<your timestamp column>",
+    "field_id": "<your plot / node id column>",
+    "soil_moisture": "<your soil moisture column>",
+    "temperature_c": "<your air temperature column>",
+    "humidity_pct": "<your relative humidity column>",
+    "rainfall_mm": "<your rain column>"
+  },
+
+  "_timestamp_help": "timestamp_format uses Python strftime codes, null = auto-detect. timestamp_offset_hours is ADDED to convert to field-local time (UTC data in India -> 5.5).",
+  "timestamp_format": null,
+  "dayfirst": false,
+  "timestamp_offset_hours": 0.0,
+
+  "_units_help": "soil_moisture: percent | fraction | raw (raw needs soil_raw_calibration). temperature: celsius | fahrenheit | kelvin. rainfall: mm | inch. rainfall_mode: interval (rain since previous row) | cumulative (running total).",
+  "units": {
+    "soil_moisture": "percent",
+    "temperature": "celsius",
+    "rainfall": "mm",
+    "rainfall_mode": "interval"
+  },
+  "soil_raw_calibration": {"dry_raw": 3300, "wet_raw": 1350, "dry_pct": 3.0, "wet_pct": 45.0},
+
+  "_fields_help": "Metadata per field. crop_type: groundnut|maize|onion|potato|tomato|wheat|cotton. soil_type: sandy|sandy_loam|loam|clay_loam|clay. irrigation_method: drip|sprinkler|furrow. Values in per_field override defaults; columns in the file override both only if mapped.",
+  "default_field_id": "field-1",
+  "fields": {
+    "defaults": {
+      "crop_type": "<crop>",
+      "soil_type": "<soil>",
+      "irrigation_method": "<method>",
+      "planting_date": "<YYYY-MM-DD>",
+      "latitude": 18.5
+    },
+    "per_field": {
+      "<field id as in your file>": {"crop_type": "<crop>", "planting_date": "<YYYY-MM-DD>"}
+    }
+  },
+
+  "_labels_help": "derive = compute FAO-56 weak labels from your observations. columns = use your own labels: add target_irrigation_needed (0/1) and optionally target_irrigation_mm to column_map.",
+  "labels": {"mode": "derive"},
+
+  "drop_columns": [],
+  "extra": {"_note": "free-form settings for your own code in irrigation_advisor/data/dataset_hooks.py"}
+}

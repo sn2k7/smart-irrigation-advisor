@@ -28,6 +28,8 @@ def main() -> None:
     parser.add_argument("--climate", default=settings.climate_profile)
     parser.add_argument("--fault-rate", type=float, default=1.0, help="0 disables sensor faults")
     parser.add_argument("--out", default=str(settings.data_dir / "synthetic_irrigation_dataset.csv"))
+    parser.add_argument("--export-foreign", metavar="CSV",
+                        help="also write the readings in a 'foreign' format to exercise the custom-dataset slot")
     args = parser.parse_args()
     configure_logging(settings.log_level)
 
@@ -38,6 +40,29 @@ def main() -> None:
     logger.info("Field specifications -> %s", specs_path)
     logger.info("Irrigation-needed rate: %.1f%%", 100 * data["target_irrigation_needed"].mean())
     logger.info("Injected sensor faults: %s", data["sensor_fault"].value_counts().to_dict())
+    if args.export_foreign:
+        foreign = export_foreign_format(data)
+        save_dataset(foreign, args.export_foreign)
+        logger.info("Foreign-format copy (no labels) -> %s  (see config/dataset_config.sample.json)", args.export_foreign)
+
+
+def export_foreign_format(data):
+    """Same readings with other names/units: what a third-party logger export might look like."""
+    import pandas as pd
+
+    out = pd.DataFrame({
+        "DateTime": pd.to_datetime(data["timestamp"]).dt.strftime("%d/%m/%Y %H:%M"),
+        "NodeID": data["field_id"],
+        "VWC_frac": (data["soil_moisture"] / 100.0).round(4),
+        "AirTemp_F": (data["temperature_c"] * 9 / 5 + 32).round(1),
+        "RH": data["humidity_pct"],
+        "Crop": data["crop_type"].str.upper(),
+        "SoilTexture": data["soil_type"],
+        "Sown": data["planting_date"],
+    })
+    rain_in = data["rainfall_mm"].fillna(0) / 25.4
+    out["RainTotal_in"] = rain_in.groupby(data["field_id"]).cumsum().round(4)
+    return out
 
 
 if __name__ == "__main__":
