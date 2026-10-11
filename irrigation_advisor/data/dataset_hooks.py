@@ -38,7 +38,7 @@ def before_mapping(df: pd.DataFrame, config: "DatasetConfig") -> pd.DataFrame:
             df = df.pivot_table(index=["time", "node"], columns="sensor", values="value").reset_index()
       * drop test/calibration rows:  df = df[df["status"] != "TEST"]
     """
-    # TODO(dataset): add file-level preparation for your dataset here.
+    # PLACEHOLDER(real-dataset): add file-level preparation for your dataset here.
     return df
 
 
@@ -52,5 +52,5 @@ def custom_transform(df: pd.DataFrame, config: "DatasetConfig") -> pd.DataFrame:
       * custom labels from an irrigation log (when you have one):
             df["target_irrigation_needed"] = ...
     """
-    # TODO(dataset): add dataset-specific corrections here.
+    # PLACEHOLDER(real-dataset): add dataset-specific corrections here.
     return df

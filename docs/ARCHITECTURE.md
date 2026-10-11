@@ -29,7 +29,7 @@ smart-irrigation-advisor/
 │   │   ├── simulator.py           # synthetic dataset generator (fields, farmers, sensors, faults)
 │   │   ├── loader.py              # external CSV loading with column aliases
 │   │   ├── custom_dataset.py      # YOUR dataset: JSON-config driven mapping/units/metadata adapter
-│   │   ├── dataset_hooks.py       # YOUR code: before_mapping / custom_transform (TODO(dataset))
+│   │   ├── dataset_hooks.py       # YOUR code: before_mapping / custom_transform (PLACEHOLDER(real-dataset))
 │   │   ├── validation.py          # sensor plausibility rules (row + frame level)
 │   │   ├── preprocessing.py       # cleaning + hourly standardisation  ┐ shared by
 │   │   ├── features.py            # time-series feature engineering    ┘ training & inference

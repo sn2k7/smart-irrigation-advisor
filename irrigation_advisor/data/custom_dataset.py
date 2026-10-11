@@ -58,6 +58,10 @@ RAINFALL_UNITS = ("mm", "inch")
 RAINFALL_MODES = ("interval", "cumulative")
 
 
+def _is_placeholder(value: Any) -> bool:
+    return isinstance(value, str) and value.strip().startswith(PLACEHOLDER_PREFIX)
+
+
 @dataclass
 class DatasetConfig:
     """Everything needed to read a foreign dataset. Mirrors the JSON template."""
@@ -100,10 +104,17 @@ class DatasetConfig:
         unknown = sorted(set(self.column_map) - set(MAPPABLE_COLUMNS))
         if unknown:
             raise DataValidationError(f"Dataset config: unknown internal columns in column_map: {unknown}")
-        placeholders = [k for k, v in self.column_map.items() if str(v).startswith(PLACEHOLDER_PREFIX)]
+        # PLACEHOLDER(real-dataset): values still looking like "<...>" come from the template.
+        placeholders = [f"column_map.{k}" for k, v in self.column_map.items() if _is_placeholder(v)]
+        placeholders += [f"fields.defaults.{k}" for k, v in self.field_defaults.items() if _is_placeholder(v)]
+        for fid, meta in self.per_field_metadata.items():
+            if _is_placeholder(fid):
+                placeholders.append(f"fields.per_field.{fid}")
+            placeholders += [f"fields.per_field.{fid}.{k}" for k, v in meta.items() if _is_placeholder(v)]
         if placeholders:
             raise DataValidationError(
-                f"Dataset config: fill in (or delete) the placeholder column names for {placeholders}"
+                "Dataset config still contains template placeholders - fill in (or delete): "
+                + ", ".join(placeholders)
             )
         if self.soil_moisture_unit == "raw":
             missing = {"dry_raw", "wet_raw", "dry_pct", "wet_pct"} - set(self.soil_raw_calibration)
@@ -154,7 +165,7 @@ def _read_file(config: DatasetConfig) -> pd.DataFrame:
         return pd.read_csv(config.path, sep=config.delimiter, encoding=config.encoding)
     if suffix == ".parquet":  # requires pyarrow (optional)
         return pd.read_parquet(config.path)
-    # TODO(dataset): other formats (Excel needs `pip install openpyxl` then pd.read_excel).
+    # PLACEHOLDER(real-dataset): other formats (Excel needs `pip install openpyxl` then pd.read_excel).
     raise DataValidationError(f"Unsupported file type '{suffix}'. Convert to CSV or extend _read_file().")
 
 
@@ -270,7 +281,7 @@ def _apply_labels(df: pd.DataFrame, config: DatasetConfig) -> pd.DataFrame:
     if not values <= {0, 1}:
         raise DataValidationError(f"{TARGET_CLASS} must be 0/1, found {sorted(values)[:10]}")
     if TARGET_REG not in df.columns:
-        # TODO(dataset): if you have irrigation depths, map them to target_irrigation_mm.
+        # PLACEHOLDER(real-dataset): if you have irrigation depths, map them to target_irrigation_mm.
         logger.warning("No depth column mapped - depth regression is skipped (FAO-56 formula used for depth)")
         df[TARGET_REG] = np.where(df[TARGET_CLASS] == 1, np.nan, 0.0)
     df[TARGET_REG] = pd.to_numeric(df[TARGET_REG], errors="coerce")

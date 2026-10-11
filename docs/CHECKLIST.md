@@ -37,7 +37,7 @@ Status of every requirement in the project brief. "Test" names the test module t
 
 ## Follow-up: custom dataset slot and desktop frontend
 - [x] Config-driven adapter for a different dataset (column map, units incl. raw ADC/fraction/°F/inches/cumulative rain, timestamp format/offset, per-field metadata, label mode) - `data/custom_dataset.py`, `config/` - test: `test_custom_dataset.py`
-- [x] Code hooks for dataset-specific logic (`TODO(dataset)`) - `data/dataset_hooks.py`
+- [x] Code hooks for dataset-specific logic (`PLACEHOLDER(real-dataset)`) - `data/dataset_hooks.py`
 - [x] `scripts/prepare_custom_dataset.py`, `train_models.py --dataset-config`, `generate_dataset.py --export-foreign`
 - [x] Trainer tolerates labels without depth (regression skipped, FAO-56 depth used)
 - [x] PySide6 desktop app: dashboard, readings + CSV import, history, analytics, fields/devices, calculator, model/system - `irrigation_gui/` - test: `test_gui.py`; screenshots in `docs/screenshots/`

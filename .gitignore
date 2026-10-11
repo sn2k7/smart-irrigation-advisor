@@ -13,3 +13,6 @@ data/*.csv
 models/
 .idea/
 .vscode/
+# your real dataset stays local
+data/real/*
+!data/real/README.md

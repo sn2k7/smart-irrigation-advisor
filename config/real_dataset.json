@@ -1,0 +1,60 @@
+{
+  "_README": "Config for YOUR REAL dataset. Search this file for PLACEHOLDER and replace every value marked so. Keys starting with '_' are comments and are ignored. Values that still start with '<' are rejected with a clear error, so nothing runs on unfilled settings.",
+
+  "name": "real_dataset",
+
+  "_PLACEHOLDER_path": "PLACEHOLDER(real-dataset): path to your file, relative to the project root. Put the file in data/real/.",
+  "path": "<data/real/real_dataset.csv>",
+
+  "_PLACEHOLDER_delimiter": "PLACEHOLDER(real-dataset): ',' for CSV, ';' for European Excel exports, '\\t' for TSV.",
+  "delimiter": ",",
+  "encoding": "utf-8",
+
+  "_PLACEHOLDER_column_map": "PLACEHOLDER(real-dataset): left = internal name (do not change), right = the EXACT header in your file. Delete lines for columns you do not have (timestamp and soil_moisture are required). To use your own labels, add \"target_irrigation_needed\": \"<your 0/1 column>\" and optionally \"target_irrigation_mm\": \"<your depth column>\".",
+  "column_map": {
+    "timestamp": "<your date/time column>",
+    "field_id": "<your field / plot / node id column - delete if the file has one field>",
+    "soil_moisture": "<your soil moisture column>",
+    "temperature_c": "<your air temperature column>",
+    "humidity_pct": "<your relative humidity column>",
+    "rainfall_mm": "<your rainfall column>"
+  },
+
+  "_PLACEHOLDER_timestamp": "PLACEHOLDER(real-dataset): strftime format of your dates, e.g. \"%d/%m/%Y %H:%M\" or \"%Y-%m-%d %H:%M:%S\"; null = auto-detect. Set dayfirst=true for 31/12/2024 style dates. timestamp_offset_hours is ADDED to reach field-local time (UTC data in India: 5.5).",
+  "timestamp_format": null,
+  "dayfirst": false,
+  "timestamp_offset_hours": 0.0,
+
+  "_PLACEHOLDER_units": "PLACEHOLDER(real-dataset): soil_moisture = percent | fraction | raw (raw needs soil_raw_calibration below); temperature = celsius | fahrenheit | kelvin; rainfall = mm | inch; rainfall_mode = interval (rain since previous row) | cumulative (running total, e.g. a rain-gauge counter).",
+  "units": {
+    "soil_moisture": "percent",
+    "temperature": "celsius",
+    "rainfall": "mm",
+    "rainfall_mode": "interval"
+  },
+
+  "_PLACEHOLDER_soil_raw_calibration": "PLACEHOLDER(real-dataset): only used when units.soil_moisture = raw. Raw sensor value in dry air / in saturated soil and the % VWC they correspond to (measure these for YOUR probe).",
+  "soil_raw_calibration": {"dry_raw": 3300, "wet_raw": 1350, "dry_pct": 3.0, "wet_pct": 45.0},
+
+  "_PLACEHOLDER_fields": "PLACEHOLDER(real-dataset): agronomic details. crop_type: cotton|groundnut|maize|onion|potato|tomato|wheat. soil_type: sandy|sandy_loam|loam|clay_loam|clay. irrigation_method: drip|sprinkler|furrow. planting_date: YYYY-MM-DD. latitude: decimal degrees. 'defaults' apply to every field; 'per_field' overrides them for a field id as it appears in your file (delete per_field if you have one field).",
+  "default_field_id": "real-field-1",
+  "fields": {
+    "defaults": {
+      "crop_type": "<crop>",
+      "soil_type": "<soil>",
+      "irrigation_method": "<drip|sprinkler|furrow>",
+      "planting_date": "<YYYY-MM-DD>",
+      "latitude": 18.5
+    },
+    "per_field": {}
+  },
+
+  "_PLACEHOLDER_labels": "PLACEHOLDER(real-dataset): \"derive\" computes FAO-56 labels from your observations (works without labels, but the rule baseline then partly grades itself). \"columns\" uses your own labels - add target_irrigation_needed to column_map. Real agronomist/stress labels give the most honest evaluation.",
+  "labels": {"mode": "derive"},
+
+  "_PLACEHOLDER_drop_columns": "PLACEHOLDER(real-dataset): columns to ignore completely (e.g. IDs, comments).",
+  "drop_columns": [],
+
+  "_PLACEHOLDER_extra": "PLACEHOLDER(real-dataset): free-form settings you read in irrigation_advisor/data/dataset_hooks.py via config.extra.",
+  "extra": {}
+}

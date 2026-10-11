@@ -12,7 +12,7 @@ python scripts/train_models.py --dataset-config config\my_dataset.json     # tra
 ```
 
 Anything a mapping cannot express (merging files, pivoting long data, per-probe calibration, your own
-labels) goes into `irrigation_advisor/data/dataset_hooks.py` (search for `TODO(dataset)`).
+labels) goes into `irrigation_advisor/data/dataset_hooks.py` (search for `PLACEHOLDER(real-dataset)`).
 
 Data requirements for training: hourly or finer readings, ideally several fields and several weeks,
 with both irrigated/rainy and drying periods. Very small files can be checked with `prepare_custom_dataset.py`,

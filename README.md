@@ -252,7 +252,7 @@ The code leaves a defined slot for your data, so no pipeline changes are needed:
 | Where | What you fill in |
 |---|---|
 | `config/dataset_config.example.json` | copy it and replace the `<...>` placeholders: file path, your column names, units (% / fraction / raw ADC, °C/°F/K, mm/inch, per-row or cumulative rain), timestamp format, field metadata (crop, soil, method, planting date, latitude), label mode |
-| `irrigation_advisor/data/dataset_hooks.py` | optional code for things a mapping cannot express (merge files, pivot long data, per-probe calibration, your own labels). Search for `TODO(dataset)` |
+| `irrigation_advisor/data/dataset_hooks.py` | optional code for things a mapping cannot express (merge files, pivot long data, per-probe calibration, your own labels). Search for `PLACEHOLDER(real-dataset)` |
 
 ```powershell
 Copy-Item config\dataset_config.example.json config\my_dataset.json      # edit the <...> values
