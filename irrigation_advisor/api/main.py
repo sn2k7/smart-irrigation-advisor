@@ -43,6 +43,19 @@ Model metrics come from **synthetic data** - see `/api/v1/model`.
 """
 
 
+def build_weather_provider(settings: Settings):
+    """Offline simulator (default) or live Open-Meteo with automatic offline fallback."""
+    simulated = SimulatedWeatherProvider(settings.climate_profile)
+    if settings.weather_provider == "openmeteo":
+        from ..data.openmeteo import OpenMeteoWeatherProvider
+
+        logger.info("Weather provider: Open-Meteo (fallback: simulated)")
+        return OpenMeteoWeatherProvider(settings.default_longitude, settings.timezone, fallback=simulated)
+    if settings.weather_provider != "simulated":
+        logger.warning("Unknown SIA_WEATHER_PROVIDER=%r - using simulated", settings.weather_provider)
+    return simulated
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Build a configured FastAPI app (tests pass their own settings)."""
     settings = settings or get_settings()
@@ -54,7 +67,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         db.initialise()
         engine = RecommendationEngine(
             model=try_load_model(settings.model_path),
-            weather=SimulatedWeatherProvider(settings.climate_profile),
+            weather=build_weather_provider(settings),
             stale_hours=settings.stale_reading_hours,
         )
         app.state.sia = AppState(settings=settings, db=db, engine=engine)

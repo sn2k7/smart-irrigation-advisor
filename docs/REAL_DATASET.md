@@ -1,5 +1,7 @@
 # Using a REAL dataset
 
+> Ready-made real source: **Open-Meteo** data for 11.93975 N, 79.49244 E. See [OPENMETEO.md](OPENMETEO.md).
+
 Everything you must adapt is marked **`PLACEHOLDER(real-dataset)`**. To list every spot:
 
 ```powershell

@@ -24,7 +24,10 @@ def forecast(
 ) -> dict:
     field = repo.get_field(conn, field_id)
     start = (start or datetime.now()).replace(minute=0, second=0, microsecond=0, tzinfo=None)
-    fc = state.engine.weather.forecast(float(field["latitude"]), start, hours)
+    weather = state.engine.weather
+    extra = {"longitude": float(field["longitude"])} if getattr(weather, "uses_longitude", False) \
+        and field.get("longitude") is not None else {}
+    fc = weather.forecast(float(field["latitude"]), start, hours, **extra)
     return {
         "field_id": field_id,
         "start": fc.start.isoformat(),
@@ -35,7 +38,10 @@ def forecast(
         "temp_min_c": fc.temp_min_c,
         "mean_humidity_pct": fc.mean_humidity_pct,
         "source": fc.source,
-        "disclaimer": "SIMULATED weather from an offline stochastic generator - not a real forecast. "
-        "Send forecast_rain_24h_mm with recommendation requests to use a real forecast.",
+        "disclaimer": (
+            "Live forecast from Open-Meteo." if fc.source == "open-meteo" else
+            "SIMULATED weather from an offline stochastic generator - not a real forecast. "
+            "Set SIA_WEATHER_PROVIDER=openmeteo or send forecast_rain_24h_mm for real forecasts."
+        ),
         "hourly": fc.hourly,
     }

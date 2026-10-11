@@ -48,6 +48,9 @@ MAPPABLE_COLUMNS = (
     "timestamp", "field_id", "soil_moisture", "temperature_c", "humidity_pct", "rainfall_mm",
     "crop_type", "soil_type", "irrigation_method", "planting_date", "latitude",
     TARGET_CLASS, TARGET_REG,
+    # optional weather-service columns (e.g. Open-Meteo): FAO-56 ET0 (mm per row),
+    # wind speed (m/s) and your 24 h rain forecast issued at each row's time (mm)
+    "et0_mm", "wind_speed_ms", "forecast_rain_24h_mm",
 )
 METADATA_KEYS = ("crop_type", "soil_type", "irrigation_method", "planting_date", "latitude")
 PLACEHOLDER_PREFIX = "<"
@@ -232,6 +235,9 @@ def _convert_units(df: pd.DataFrame, config: DatasetConfig) -> pd.DataFrame:
     else:
         logger.warning("No rainfall column mapped - assuming 0 mm (rain awareness is reduced)")
         df["rainfall_mm"] = 0.0
+    for col in ("et0_mm", "wind_speed_ms", "forecast_rain_24h_mm"):
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
     for col in ("temperature_c", "humidity_pct"):
         if col not in df.columns:
             logger.warning("No %s column mapped - ET will fall back to forecast temperatures", col)

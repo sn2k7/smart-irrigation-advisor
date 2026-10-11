@@ -61,6 +61,8 @@ def _resample_field(group: pd.DataFrame, passthrough: list[str]) -> pd.DataFrame
     }
     if "forecast_rain_24h_mm" in g.columns:
         agg["forecast_rain_24h_mm"] = "last"
+    if "wind_speed_ms" in g.columns:
+        agg["wind_speed_ms"] = "mean"
     for col in passthrough:
         agg[col] = "last"
     # Booleans must be numeric for max-aggregation.
@@ -69,6 +71,8 @@ def _resample_field(group: pd.DataFrame, passthrough: list[str]) -> pd.DataFrame
     # Sum of rain; an hour without any rain observation stays NaN (unknown).
     hourly["rainfall_mm"] = g["rainfall_mm"].resample("1h").sum(min_count=1)
     hourly["n_raw_readings"] = g["soil_moisture"].resample("1h").size()
+    if "et0_mm" in g.columns:  # measured/model ET0 is a flux: sum per hour
+        hourly["et0_mm"] = pd.to_numeric(g["et0_mm"], errors="coerce").resample("1h").sum(min_count=1)
     hourly.index.name = "timestamp"
     return hourly.reset_index()
 
@@ -101,8 +105,9 @@ def prepare_sensor_frame(df: pd.DataFrame, passthrough: Iterable[str] = ()) -> p
     data["field_id"] = data["field_id"].astype(str)
     for col in SENSOR_COLUMNS:
         data[col] = pd.to_numeric(data[col], errors="coerce")
-    if "forecast_rain_24h_mm" in data.columns:
-        data["forecast_rain_24h_mm"] = pd.to_numeric(data["forecast_rain_24h_mm"], errors="coerce")
+    for optional in ("forecast_rain_24h_mm", "et0_mm", "wind_speed_ms"):
+        if optional in data.columns:
+            data[optional] = pd.to_numeric(data[optional], errors="coerce")
 
     before = len(data)
     data = data.drop_duplicates(subset=["field_id", "timestamp"], keep="last")

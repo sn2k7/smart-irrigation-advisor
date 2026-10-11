@@ -60,6 +60,12 @@ class Settings:
     iot_api_key: str = ""
     #: Default latitude used by the simulated weather provider when a field has none.
     default_latitude: float = 18.5
+    #: Default longitude (Open-Meteo provider) when a field has none.
+    default_longitude: float = 79.49244
+    #: "simulated" (offline, default) or "openmeteo" (live forecasts; falls back to simulated when offline).
+    weather_provider: str = "simulated"
+    #: IANA time zone for Open-Meteo requests (field-local timestamps).
+    timezone: str = "Asia/Kolkata"
     #: Offset (hours) used to convert timezone-aware timestamps to field-local time.
     utc_offset_hours: float = 5.5
     #: Hours of history loaded from the database for each recommendation.
@@ -84,6 +90,9 @@ def _build_settings() -> Settings:
         log_level=_env_str("SIA_LOG_LEVEL", defaults.log_level).upper(),
         iot_api_key=_env_str("SIA_IOT_API_KEY", defaults.iot_api_key),
         default_latitude=_env_float("SIA_DEFAULT_LATITUDE", defaults.default_latitude),
+        default_longitude=_env_float("SIA_DEFAULT_LONGITUDE", defaults.default_longitude),
+        weather_provider=_env_str("SIA_WEATHER_PROVIDER", defaults.weather_provider).lower(),
+        timezone=_env_str("SIA_TIMEZONE", defaults.timezone),
         utc_offset_hours=_env_float("SIA_UTC_OFFSET_HOURS", defaults.utc_offset_hours),
         history_hours=_env_int("SIA_HISTORY_HOURS", defaults.history_hours),
         stale_reading_hours=_env_float("SIA_STALE_READING_HOURS", defaults.stale_reading_hours),

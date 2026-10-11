@@ -87,6 +87,11 @@ MAPPING_ROWS: list[tuple[str, str]] = [
     ("planting_date", "Planting date (column)"),
     (TARGET_CLASS, "Your label: irrigation needed (0/1)"),
     (TARGET_REG, "Your label: irrigation depth (mm)"),
+    ("et0_mm", "ET0 per row (mm, e.g. Open-Meteo)"),
+    ("wind_speed_ms", "Wind speed (m/s)"),
+    ("forecast_rain_24h_mm", "Rain forecast next 24 h (mm)"),
+    ("irrigation_method", "Irrigation method (column)"),
+    ("latitude", "Latitude (column)"),
 ]
 PLACEHOLDER_TEXT = "<"
 
@@ -330,7 +335,7 @@ class ConfigTab(QWidget):
         if self.planting.text().strip():
             defaults["planting_date"] = self.planting.text().strip()
         # Values supplied by mapped columns don't need defaults.
-        for key in ("crop_type", "soil_type"):
+        for key in ("crop_type", "soil_type", "irrigation_method"):
             if key in cmap and defaults[key].startswith(PLACEHOLDER_TEXT):
                 del defaults[key]
         fields["defaults"] = defaults

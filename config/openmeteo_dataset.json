@@ -1,0 +1,34 @@
+{
+  "_README": "Open-Meteo dataset for the requested location. Run: python scripts/fetch_openmeteo.py  (needs internet). Keys starting with '_' are comments. Values marked PLACEHOLDER are reasonable starting points that YOU should confirm for the real farm.",
+
+  "name": "openmeteo_11.93975_79.49244",
+  "latitude": 11.93975,
+  "longitude": 79.49244,
+  "timezone": "Asia/Kolkata",
+
+  "_PLACEHOLDER_period": "PLACEHOLDER(openmeteo): download period. The archive lags ~5 days behind today; archived forecasts (for the rain-forecast parameter) exist from about 2022 onwards. 4 years = ~35,000 hourly rows.",
+  "start_date": "2022-01-01",
+  "end_date": "2025-12-31",
+
+  "_PLACEHOLDER_soil_layers": "PLACEHOLDER(openmeteo): archive soil-moisture layers averaged by thickness (cm) to mimic a probe at ~0-28 cm. Add \"soil_moisture_28_to_100cm\": 72 for a deeper root zone.",
+  "soil_layers": {"soil_moisture_0_to_7cm": 7, "soil_moisture_7_to_28cm": 21},
+
+  "_PLACEHOLDER_soil_type": "PLACEHOLDER(openmeteo): 'auto' picks the soil class whose field capacity / wilting point best match the downloaded moisture (field capacity = moisture 48 h after >= 10 mm rain). Replace with the farm's measured texture (sandy | sandy_loam | loam | clay_loam | clay) when known.",
+  "soil_type": "auto",
+
+  "_PLACEHOLDER_irrigation_method": "PLACEHOLDER(openmeteo): drip | sprinkler | furrow on the real farm.",
+  "irrigation_method": "drip",
+
+  "_PLACEHOLDER_seasons": "PLACEHOLDER(openmeteo): the farm's crop calendar. Each entry repeats every year; every season becomes one 'field' in the dataset. Example values only - replace with the actual crops and sowing dates. Crops: cotton | groundnut | maize | onion | potato | tomato | wheat (paddy rice is out of scope).",
+  "seasons": [
+    {"crop_type": "groundnut", "planting_month_day": "06-15"},
+    {"crop_type": "groundnut", "planting_month_day": "12-15"}
+  ],
+
+  "_rain_forecast": "Use archived Open-Meteo forecasts as the 24 h rain forecast (true forecasts). If false or unavailable, observed next-24h rain is used as a perfect-forecast proxy (flagged in column forecast_source).",
+  "use_historical_forecast": true,
+
+  "output_csv": "data/real/openmeteo_dataset.csv",
+  "dataset_config_out": "config/openmeteo_generated_dataset.json",
+  "cache_dir": "data/real/openmeteo_cache"
+}

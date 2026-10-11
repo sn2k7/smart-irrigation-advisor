@@ -76,6 +76,7 @@ class FieldConfig:
     latitude: float
     name: str = ""
     max_irrigation_minutes: float = 180.0
+    longitude: float | None = None
 
     def __post_init__(self) -> None:
         get_crop(self.crop_type)
@@ -179,7 +180,7 @@ class RecommendationEngine:
         readings = self._normalise_readings(readings)
         if now is None:
             now = readings["timestamp"].max().to_pydatetime() if len(readings) else datetime.now()
-        forecast = self.weather.forecast(field_cfg.latitude, now, 24)
+        forecast = self.weather.forecast(field_cfg.latitude, now, 24, **self._location(field_cfg))
         if forecast_rain_24h_mm is not None:
             rain_fc, source = max(0.0, float(forecast_rain_24h_mm)), "client"
         else:
@@ -227,6 +228,7 @@ class RecommendationEngine:
             latitude=field_cfg.latitude,
             forecast_rain_24h_mm=rain_fc,
         )
+        frame = self._add_weather_service_columns(frame, field_cfg, now)
         prepared = prepare_sensor_frame(frame)
         feats = build_features(prepared)
         row = feats.iloc[-1]
@@ -297,6 +299,32 @@ class RecommendationEngine:
         return self._finalise(field_cfg, rec, decision, depth, state)
 
     # -------------------------------------------------------------- helpers
+    def _location(self, field_cfg: FieldConfig) -> dict[str, float]:
+        """Providers that need a longitude (Open-Meteo) declare ``uses_longitude``."""
+        if getattr(self.weather, "uses_longitude", False) and field_cfg.longitude is not None:
+            return {"longitude": field_cfg.longitude}
+        return {}
+
+    def _add_weather_service_columns(self, frame: pd.DataFrame, field_cfg: FieldConfig, now: datetime) -> pd.DataFrame:
+        """Attach hourly ET0 / wind from providers that observe them (Open-Meteo).
+
+        Training on Open-Meteo data uses Penman-Monteith ET0; supplying the same
+        variable here keeps inference identical. Without it, features fall back
+        to the Hargreaves estimate from the sensor temperatures.
+        """
+        observed = getattr(self.weather, "observed_hourly", None)
+        if observed is None or frame.empty or "et0_mm" in frame.columns:
+            return frame
+        start = pd.Timestamp(frame["timestamp"].min()).floor("h").to_pydatetime()
+        obs = observed(field_cfg.latitude, start, now, **self._location(field_cfg))
+        if obs is None or obs.empty:
+            return frame
+        obs = obs.assign(hour=pd.to_datetime(obs["timestamp"]).dt.floor("h")).drop(columns="timestamp")
+        out = frame.assign(hour=pd.to_datetime(frame["timestamp"]).dt.floor("h")).merge(obs, on="hour", how="left")
+        # ET0 is a per-hour flux: keep it on one reading per hour so the hourly sum is not inflated.
+        out.loc[out["hour"].duplicated(), "et0_mm"] = np.nan
+        return out.drop(columns="hour")
+
     @staticmethod
     def _normalise_readings(readings: pd.DataFrame | None) -> pd.DataFrame:
         cols = ["timestamp", "soil_moisture", "temperature_c", "humidity_pct", "rainfall_mm"]
@@ -528,6 +556,7 @@ def field_config_from_row(row: dict[str, Any]) -> FieldConfig:
         flow_rate_lpm=float(row["flow_rate_lpm"]),
         latitude=float(row["latitude"]),
         max_irrigation_minutes=float(row.get("max_irrigation_minutes") or 180.0),
+        longitude=None if row.get("longitude") is None else float(row["longitude"]),
     )
 
 

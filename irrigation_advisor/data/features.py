@@ -174,6 +174,11 @@ def _field_features(g: pd.DataFrame) -> pd.DataFrame:
     out["root_depth_m"] = zr
     out["growth_stage"] = stage_array(crop, days)
     et0 = hargreaves_et0(out["temp_min_24h"].to_numpy(), out["temp_max_24h"].to_numpy(), latitude, doy)
+    if "et0_mm" in g.columns and g["et0_mm"].notna().any():
+        # Measured / weather-service FAO-56 Penman-Monteith ET0 (e.g. Open-Meteo), summed over the
+        # past 24 h, replaces the temperature-only Hargreaves estimate wherever it is available.
+        measured = g["et0_mm"].rolling(24, min_periods=18).sum().to_numpy()
+        et0 = np.where(np.isfinite(measured), measured, et0)
     out["et0_24h_mm"] = et0
     out["etc_24h_mm"] = out["kc"] * et0
     taw = 1000.0 * (soil.field_capacity - soil.wilting_point) * zr
@@ -213,6 +218,9 @@ def _field_features(g: pd.DataFrame) -> pd.DataFrame:
     out["sm_imputed"] = g["sm_imputed"].astype(float) if "sm_imputed" in g.columns else 0.0
     out["sm_invalid_hours_24h"] = invalid.rolling(24, min_periods=1).sum()
 
+    # Wind is kept as context (its effect is already inside Penman-Monteith ET0).
+    if "wind_speed_ms" in g.columns:
+        out["wind_speed_ms"] = g["wind_speed_ms"].to_numpy()
     out["crop_type"] = crop.name
     out["soil_type"] = soil.name
     return out
